@@ -93,6 +93,33 @@ function randomString(e: number) {
   return n
 }
 
+function normalizeTelegramWebsiteUrl(value: string) {
+  const normalized = value.trim().replace(/\/+$/, '')
+  if (!normalized) {
+    throw new Error('请先填写论坛地址')
+  }
+
+  const url = new URL(normalized)
+  if (url.protocol !== 'https:') {
+    throw new Error('Telegram Webhook 只支持 HTTPS 公网地址')
+  }
+
+  return url.toString().replace(/\/+$/, '')
+}
+
+function buildTelegramWebhookSetupUrl() {
+  if (!state.notify.tgBotToken.trim()) {
+    throw new Error('请先填写 Bot Token')
+  }
+
+  const websiteUrl = normalizeTelegramWebsiteUrl(state.websiteUrl)
+  const webhookUrl = new URL('/api/tg', `${websiteUrl}/`)
+  const setupUrl = new URL(`https://api.telegram.org/bot${state.notify.tgBotToken.trim()}/setWebhook`)
+  setupUrl.searchParams.set('secret_token', state.notify.tgSecret)
+  setupUrl.searchParams.set('url', webhookUrl.toString())
+  return setupUrl.toString()
+}
+
 async function saveSettings() {
   if (state.turnstile.enable && (!state.turnstile.siteKey || !state.turnstile.secretKey)) {
     toast.error('启用了 Turnstile，请填写 Site Key 和 Secret Key')
@@ -102,6 +129,21 @@ async function saveSettings() {
   if (state.regWithEmailCodeVerify && (!state.email.apiKey || !state.email.from)) {
     toast.error('启用了邮件验证码，请填写 Resend API Key 和发件邮箱')
     return
+  }
+
+  if (state.notify.tgBotEnabled) {
+    if (!state.notify.tgBotToken.trim()) {
+      toast.error('启用了 Telegram 机器人，请填写 Bot Token')
+      return
+    }
+
+    try {
+      state.websiteUrl = normalizeTelegramWebsiteUrl(state.websiteUrl)
+    }
+    catch (error) {
+      toast.error(error instanceof Error ? error.message : '论坛地址格式不正确')
+      return
+    }
   }
 
   if (state.notify.tgBotEnabled && !state.notify.tgSecret) {
@@ -165,8 +207,17 @@ async function testEmail() {
 const { copy } = useCopyToClipboard()
 
 async function copyWebhook() {
-  copy(`https://api.telegram.org/bot${state.notify.tgBotToken}/setwebhook?secret_token=${state.notify.tgSecret}&url=${state.websiteUrl}/api/tg`)
-  toast.success('复制成功')
+  try {
+    if (state.notify.tgBotEnabled && !state.notify.tgSecret) {
+      state.notify.tgSecret = randomString(32)
+    }
+
+    copy(buildTelegramWebhookSetupUrl())
+    toast.success('复制成功')
+  }
+  catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Webhook 地址生成失败')
+  }
 }
 </script>
 
