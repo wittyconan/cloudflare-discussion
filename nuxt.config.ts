@@ -21,6 +21,7 @@ export default defineNuxtConfig({
       avatarCdn: 'https://gravatar.cooluc.com/avatar/',
       cookieSecure: false,
       appVersion: 'workers-d1',
+      apiBase: 'https://discussion-forum.6250109.workers.dev',
     },
   },
   compatibilityDate: '2025-04-01',
