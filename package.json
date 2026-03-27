@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs generate",
+    "build": "node node_modules/nuxt/bin/nuxt.mjs generate",
     "build:web": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs generate",
     "cf:preview": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs generate && node node_modules/wrangler/bin/wrangler.js dev",
     "cf:deploy": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs generate && node node_modules/wrangler/bin/wrangler.js deploy",
@@ -12,7 +12,7 @@
     "dev": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs dev",
     "generate": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs generate",
     "preview": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs preview",
-    "postinstall": "NUXT_TELEMETRY_DISABLED=1 node node_modules/nuxt/bin/nuxt.mjs prepare"
+    "postinstall": "node node_modules/nuxt/bin/nuxt.mjs prepare"
   },
   "dependencies": {
     "@iconify-json/carbon": "^1.1.36",
